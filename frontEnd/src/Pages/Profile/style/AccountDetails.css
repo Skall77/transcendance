@@ -1,0 +1,13 @@
+.account-details-container {
+    margin-bottom: 20px;
+  }
+  
+  .account-details-item {
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .account-details-item span {
+    font-weight: bold;
+    color: #FF1493;
+  }

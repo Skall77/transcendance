@@ -1,0 +1,34 @@
+.profile-details-container {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    margin-top: 50px;
+    margin-left: 40px;
+  }
+  
+  .profile-picture {
+    width: 150px;
+    height: 150px;
+    max-width: 100%; 
+    border-radius: 50%;
+    margin-top: 10px;
+    border: 2px solid white;
+  }
+  
+  .profile-info {
+    text-align: left;
+    margin-top: 40px;
+    margin-left: 20px;
+    flex-grow: 1;
+  }
+  
+  .account-details {
+    text-align: right;
+    margin-right: 40px;
+  }
+  
+  .account-details p {
+    color: #555;
+  }
+  
+  
