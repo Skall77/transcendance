@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  email         String      @unique
+  username      String?     @unique
+  avatarUrl     String?
+  files         File[]      @relation("file")
+
+  accessToken   String?     @unique
+  refreshToken  String?     @unique
+
+  twoFactorAuth  Boolean?   @default(false)
+  twoFactorActive Boolean?  @default(false)
+
+  status Status?            @default(OFFLINE)
+
+  friends           Int[]       @default([])
+  blockedUser       Int[]       @default([])
+  
+}
+
+model File {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  content       Bytes
+  name          String
+  mimetype      String
+  owner         User[]    @relation("file")
+}
+
+enum Status {
+  ONLINE
+  OFFLINE
+  PLAYING
+}
