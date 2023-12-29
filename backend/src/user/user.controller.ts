@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Request } from 'express';
 import { FriendsDto } from './dto/friends.dto';
@@ -28,8 +28,15 @@ export class UserController {
   }
 
   @Patch('me/username')
-  setUsername(@Req() req: Request, @Res() res: any) {
-    return this.userService.setUsername(req, res);
+  setUsername(@Req() req: Request) {
+    return this.userService.setUsername(req);
+  }
+
+  @Post('checkusername')
+  async checkUsernameExists(@Req() req): Promise<{ exists: boolean }> {
+    const { username } = req.body;
+    const exists = await this.userService.checkUsernameExists(username);
+    return { exists };
   }
 
   @Get('me/id')
@@ -90,5 +97,30 @@ export class UserController {
   @Get('user/status')
   getUserStatus(@Req() req: Request) {
     return this.userService.getUserStatus(req);
+  }
+
+  @Get('username/validation')
+  async whoIsTheUser(@Req() req: Request) {
+    return await this.userService.whoIsTheUser(req);
+  }
+
+  @Get('username/id')
+  async getUserIdByUsername(@Req() req: Request) {
+    return await this.userService.getUserIdByUsername(req);
+  }
+
+  @Get('username/friends')
+  async getFriendsByUsername(@Req() req: Request) {
+    return await this.userService.getFriendsByUsername(req);
+  }
+
+  @Get('me/achievements')
+  async getMyAchievements(@Req() req: Request) {
+    return await this.userService.getMyAchievements(req);
+  }
+
+  @Get('me/history')
+  async getMyHistory(@Req() req: Request) {
+    return await this.userService.getMyHistory(req);
   }
 }

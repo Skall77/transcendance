@@ -1,18 +1,73 @@
-/* src/components/PongGame.css */
-.pong-container {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    background-color: #242424;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .score {
-    display: flex;
-    color: #fff;
-    font-size: 2rem;
-    margin-top: 20px;
-  }
+.PongTable {
+  margin: 20px;
+  color: #C101A4;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: #1a1a1a;
+}
+
+th, td {
+  border: 1px solid #C101A4;
+  padding: 10px;
+  text-align: center;
+}
+
+.mainTitle {
+  font-size: 24px;
+}
+
+.otherTab {
+  font-size: 18px;
+}
+
+.lineTab:nth-child(odd) {
+  background-color: #1a1a1a;
+}
+
+.lineTab:nth-child(even) {
+  background-color: #000;
+}
+
+.cellPlayer {
+  font-weight: bold;
+}
+
+/* Style the vs separator */
+td:nth-child(3) {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.JoinStyle {
+  padding: 10px 20px;
+  background-color: #C101A4; /* Choose your preferred button color */
+  color: #1a1a1a; /* Text color */
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 5px; /* Rounded corners for a button-like appearance */
+  transition: background-color 0.3s ease; /* Smooth transition on hover */
+  margin-right: 5px; /* Adjust the right margin for spacing */
+}
+
+.JoinStyle:hover {
+  background-color: hsl(309, 99%, 78%); /* Change the background color on hover */
+}
+
+.color-picker-popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background: rgb(255, 255, 255);
+  padding: 20px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

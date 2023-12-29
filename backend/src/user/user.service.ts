@@ -1,4 +1,4 @@
-import { Injectable, Req, Res } from '@nestjs/common';
+import { Injectable, Req } from '@nestjs/common';
 import { Status } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
@@ -10,11 +10,21 @@ export class UserService {
 
   async setOnline(@Req() req: Request) {
     const status = Status.ONLINE;
-    await this.prisma.user.update({
+
+    const existingUser = await this.prisma.user.findUnique({
       where: { accessToken: req.headers.authorization },
-      data: { status },
     });
-    return { message: 'User status is Online!' };
+
+    if (existingUser) {
+      await this.prisma.user.update({
+        where: { accessToken: req.headers.authorization },
+        data: { status },
+      });
+
+      return { message: 'User status is Online!' };
+    } else {
+      return { message: 'User not found.' };
+    }
   }
 
   async setOffline(@Req() req: Request) {
@@ -42,16 +52,19 @@ export class UserService {
     });
   }
 
-  async setUsername(@Req() req: Request, @Res() res: any) {
-    const { username } = req.body;
-    if (!username || username.length < 3)
-      return res
-        .status(400)
-        .json({ error: 'Username must be at least 3 characters long.' });
+  async setUsername(@Req() req: Request) {
     return this.prisma.user.update({
       where: { accessToken: req.headers.authorization },
       data: { username: req.body.username },
     });
+  }
+
+  async checkUsernameExists(username: string): Promise<boolean> {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { username },
+    });
+
+    return !!existingUser;
   }
 
   async getMyId(@Req() req: Request) {
@@ -76,21 +89,26 @@ export class UserService {
   }
 
   async getMyAvatar(@Req() req: Request) {
+    const username = Array.isArray(req.headers.username)
+      ? req.headers.username[0]
+      : req.headers.username;
+    if (!username) return { error: 'Username not found.' };
+
     return this.prisma.user.findUnique({
-      where: { accessToken: req.headers.authorization },
+      where: { username: username },
       select: { avatarUrl: true },
     });
   }
 
   async setMyAvatar(@Req() req: Request) {
     await this.prisma.user.update({
-      where: { accessToken: req.headers.authorization },
+      where: { accessToken: req.body.token },
       data: {
         avatarUrl: `${process.env.BACKEND_URL}` + '/files/' + req.body.username,
       },
     });
-
-    return { message: 'Avatar updated!' };
+    console.log(req.body.username);
+    return { message: 'Avatar set!' };
   }
 
   async addFriend(data: FriendsDto) {
@@ -111,7 +129,7 @@ export class UserService {
         friends: { set: friend.friends },
       },
     });
-    return { message: 'Friend added!' };
+    return { message: 'Friend added!', value: true };
   }
 
   async removeFriend(data: FriendsDto) {
@@ -133,7 +151,7 @@ export class UserService {
         friends: { set: friend.friends },
       },
     });
-    return { message: 'Friend removed!' };
+    return { message: 'Friend removed!', value: true };
   }
 
   async getFriendStatus(@Req() req: Request) {
@@ -142,7 +160,7 @@ export class UserService {
       select: { friends: true },
     });
     return {
-      friends: user.friends.includes(parseInt(req.headers.id as string, 10)),
+      value: user.friends.includes(parseInt(req.headers.id as string, 10)),
     };
   }
 
@@ -164,7 +182,7 @@ export class UserService {
         blockedUser: { set: block.blockedUser },
       },
     });
-    return { message: 'User blocked!' };
+    return { message: 'User blocked!', value: true };
   }
 
   async unblockUser(data: FriendsDto) {
@@ -186,7 +204,7 @@ export class UserService {
         blockedUser: { set: block.blockedUser },
       },
     });
-    return { message: 'User unblocked!' };
+    return { message: 'User unblocked!', value: true };
   }
 
   async getBlockedUserStatus(@Req() req: Request) {
@@ -195,9 +213,7 @@ export class UserService {
       select: { blockedUser: true },
     });
     return {
-      blocked: user.blockedUser.includes(
-        parseInt(req.headers.id as string, 10),
-      ),
+      value: user.blockedUser.includes(parseInt(req.headers.id as string, 10)),
     };
   }
 
@@ -215,5 +231,159 @@ export class UserService {
       select: { status: true },
     });
     return user.status;
+  }
+
+  async getUserByUsername(username: string) {
+    return this.prisma.user.findUnique({
+      where: { username },
+    });
+  }
+
+  async whoIsTheUser(@Req() req: Request) {
+    const username = Array.isArray(req.headers.username)
+      ? req.headers.username[0]
+      : req.headers.username;
+
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+    });
+
+    const loggedUser = await this.prisma.user.findUnique({
+      where: { accessToken: req.headers.authorization },
+    });
+
+    if (user.username === loggedUser.username) {
+      return { value: true, loggedUser: true };
+    } else if (user) return { value: true, loggedUser: false };
+    else return { value: false, loggedUser: false };
+  }
+
+  async getUserIdByUsername(@Req() req: Request) {
+    const username = Array.isArray(req.headers.username)
+      ? req.headers.username[0]
+      : req.headers.username;
+
+    return this.prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+  }
+
+  async getFriendsByUsername(@Req() req: Request) {
+    const username = Array.isArray(req.headers.username)
+      ? req.headers.username[0]
+      : req.headers.username;
+
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+    });
+
+    const friendIds = user.friends;
+
+    const friendsDetails = await this.prisma.user.findMany({
+      where: {
+        id: {
+          in: friendIds,
+        },
+      },
+      select: {
+        username: true,
+        status: true,
+        avatarUrl: true,
+      },
+    });
+
+    const friendsArray = friendsDetails.map((friend) => ({
+      username: friend.username,
+      status: friend.status,
+      avatar: friend.avatarUrl,
+    }));
+
+    return friendsArray;
+  }
+
+  async getMyAchievements(@Req() req: Request) {
+    const username = Array.isArray(req.headers.username)
+      ? req.headers.username[0]
+      : req.headers.username;
+
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: {
+        id: true,
+        games: true,
+        friends: true,
+      },
+    });
+
+    const games = await this.prisma.game.findMany({
+      where: {
+        players: {
+          some: {
+            id: user.id,
+          },
+        },
+      },
+      include: {
+        players: true,
+      },
+    });
+
+    const hasPlayed = user.games.length > 0;
+    let hasWon = false;
+
+    games.forEach((game) => {
+      if (game.playerName === username && game.score[0] > game.score[1])
+        hasWon = true;
+      else if (game.playerName !== username && game.score[1] > game.score[0])
+        hasWon = true;
+    });
+
+    const hasFriend = user.friends.length > 0;
+
+    return {
+      hasPlayed,
+      hasWon,
+      hasFriend,
+    };
+  }
+
+  async getMyHistory(@Req() req: Request) {
+    const username = Array.isArray(req.headers.username)
+      ? req.headers.username[0]
+      : req.headers.username;
+
+    const games = await this.prisma.game.findMany({
+      where: {
+        players: {
+          some: {
+            username: username,
+          },
+        },
+      },
+      select: {
+        players: true,
+        playerName: true,
+        score: true,
+        createdAt: true,
+      },
+    });
+
+    return games.map((game) => {
+      const sortedPlayers = game.players.sort(
+        (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+      );
+      const player1 = sortedPlayers[0].username;
+      const player2 = sortedPlayers[1].username;
+      const player = game.playerName;
+
+      return {
+        player1,
+        player2,
+        player,
+        score: game.score,
+        date: game.createdAt,
+      };
+    });
   }
 }

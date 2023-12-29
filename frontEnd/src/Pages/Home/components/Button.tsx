@@ -15,7 +15,7 @@ const CustomButton: React.FC<ButtonProps & LoggedProps> = ({ onClick, children ,
   if(!isLoggedIn)
     return null ;
   return (
-    <button onClick={onClick} className='button'>{children}</button>);
+    <button onClick={onClick} className='button-home'>{children}</button>);
 };
 
 export default CustomButton;

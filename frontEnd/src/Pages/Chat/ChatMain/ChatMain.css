@@ -1,0 +1,78 @@
+/* Style for the chat container */
+.ChatContainer {
+    background-color: #C101A4;
+    color: #1a1a1a;
+    padding: 10px;
+    max-width: 800px; /* Set your desired maximum width */
+    margin: 0 auto; /* Center the container on the page */
+    border: 2px solid #C101A4; /* Neon color for the border */
+    border-radius: 10px; /* Border radius for rounded corners */
+    box-shadow: 0 0 10px #C101A4; /* Neon glow effect */
+}
+
+/* Style for each chat message */
+.chatMessage {
+    flex-grow: 1;
+    word-wrap: break-word; /* Ensure long words break to the next line */
+    overflow: hidden; /* or overflow: auto; if you want scrolling */
+}
+
+/* Style for the header of each chat message */
+.ChatMessageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Style for the username */
+.chatUsername {
+    color: #FFD700; /* You can choose a different color for usernames */
+    font-weight: bold;
+    margin-right: 10px; /* Add spacing between username and timestamp */
+}
+
+/* Style for the timestamp */
+.chatDate {
+    font-size: 0.8em;
+    color: #808080; /* You can choose a different color for the timestamp */
+    margin-right: 10px; /* Add spacing between timestamp and message */
+}
+
+/* Style for the chat input and send button container */
+.ChatMessagesender {
+    display: flex;
+    background-color: #C101A4;
+    padding: 10px;
+    border: 2px solid #C101A4; /* Neon color for the border */
+    border-radius: 10px; /* Border radius for rounded corners */
+    box-shadow: 0 0 10px #C101A4; /* Neon glow effect */
+    max-width: 800px; /* Set your desired maximum width */
+    margin: 0 auto; /* Center the container on the page */
+}
+
+/* Style for the chat input */
+.ChatInput {
+    flex-grow: 1;
+    padding: 8px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1a1a1a;
+    color: #C101A4; /* Text color for input */
+}
+
+/* Style for the send button */
+.ButtonSendChat {
+    background-color: #1a1a1a;
+    color: #C101A4;
+    border: 2px solid #00FFFF; /* Neon color for the border */
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition on hover */
+}
+
+/* Hover effect for the send button */
+.ButtonSendChat:hover {
+    background-color: #00FFFF; /* Change background color on hover */
+}

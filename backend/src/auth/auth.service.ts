@@ -11,6 +11,8 @@ import axios from 'axios';
 import { Response, Request } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
+import { toDataURL } from 'qrcode';
+import { authenticator } from 'otplib';
 
 @Injectable({})
 export class AuthService {
@@ -81,7 +83,7 @@ export class AuthService {
 
   async getUserInDb(email: string) {
     try {
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.user.findFirst({
         where: { email: email },
       });
       return user;
@@ -118,7 +120,7 @@ export class AuthService {
       const formData = new FormData();
       formData.append('file', imageBlob, 'avatar.png');
       const username = user.login;
-      const uploadUrl = `http://localhost:3333/files/${username}/upload`;
+      const uploadUrl = `${process.env.BACKEND_URL}/files/${username}/upload`;
       const uploadResponse = await axios.post(uploadUrl, formData);
       console.log(uploadResponse.data);
       return newUser;
@@ -137,10 +139,13 @@ export class AuthService {
     user: { email: string },
   ) {
     try {
-      await this.prisma.user.update({
-        where: { email: user.email },
-        data: { accessToken: token },
-      });
+      if (user) {
+        const userToReturn = await this.prisma.user.update({
+          where: { email: user.email },
+          data: { accessToken: token },
+        });
+        return userToReturn;
+      } else return null;
     } catch (error) {
       throw new HttpException(
         {
@@ -164,6 +169,99 @@ export class AuthService {
     } catch (error) {
       console.log(error);
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async checkIfTwoFactorActive(@Req() req: Request) {
+    try {
+      const status = await this.prisma.user.findFirst({
+        where: { accessToken: req.headers.authorization },
+        select: { twoFactorAuth: true, twoFactorActive: true },
+      });
+      return status;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'Error while checking if two factor is active',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async enableTwoFactor(@Req() req: Request) {
+    await this.prisma.user.update({
+      where: { accessToken: req.body.token },
+      data: { twoFactorAuth: req.body.twoFactorAuth },
+    });
+  }
+
+  async activateTwoFactor(@Req() req: Request) {
+    await this.prisma.user.update({
+      where: { accessToken: req.body.token },
+      data: { twoFactorActive: req.body.twoFactorActive },
+    });
+  }
+
+  async generateQRCode(otpAuthUrl: string) {
+    return toDataURL(otpAuthUrl);
+  }
+
+  async generateTwoFactor(@Req() req: Request, @Res() res: Response) {
+    const user = await this.prisma.user.findFirst({
+      where: { accessToken: req.body.token },
+    });
+    if (user.twoFactorAuth == true) {
+      const secret = authenticator.generateSecret();
+      await this.prisma.user.update({
+        where: { accessToken: req.body.token },
+        data: { twoFactorSecret: secret },
+      });
+      const twoFactorSecret = await this.prisma.user.findFirst({
+        where: { accessToken: req.body.token },
+        select: { twoFactorSecret: true },
+      });
+      if (twoFactorSecret.twoFactorSecret == null)
+        return { message: 'Error while generating two factor secret' };
+      const otpAuthUrl = authenticator.keyuri(
+        user.email,
+        'PingPongShow',
+        twoFactorSecret.twoFactorSecret,
+      );
+
+      const qrCodeData = await this.generateQRCode(otpAuthUrl);
+
+      return res.json(qrCodeData);
+    }
+    return { message: 'Two factor auth not enabled' };
+  }
+
+  async verifyTwoFactor(@Req() req: Request) {
+    const user = await this.prisma.user.findFirst({
+      where: { accessToken: req.body.token },
+    });
+    // console.log(req.body.twoFactorCode);
+    // console.log(user.twoFactorSecret);
+    return authenticator.verify({
+      token: req.body.twoFactorCode,
+      secret: user.twoFactorSecret,
+    });
+  }
+
+  async checkIfTwoFactorSuccess(@Req() req: Request) {
+    try {
+      await this.prisma.user.update({
+        where: { accessToken: req.body.token },
+        data: { twoFactorVerified: req.body.status },
+      });
+      return { message: 'Login with TwoFactor Succeded ' };
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        'Error while connecting user',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

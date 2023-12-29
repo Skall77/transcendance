@@ -1,17 +1,16 @@
 import Header from './Header';
 import CustomButton from './Button';
 import { BiPlay , BiSolidChat} from "react-icons/bi";
+import { useNavigate } from 'react-router-dom';
 
-export const Home = () => {
-    const handleClick = () => {
-        alert('Bouton cliqued');
-      }
+export const Home = ({ isLoggedIn }: { isLoggedIn: boolean }) => {
+    const navigate = useNavigate();
       return (
           <div className='p-homepage'>
             <Header/>
-            <CustomButton isLoggedIn={true} onClick={handleClick}><BiPlay/>PLAY</CustomButton>
+            <CustomButton isLoggedIn={isLoggedIn} onClick={() => navigate('/PongGame')}><BiPlay/>PLAY</CustomButton>
             <p></p>
-            <CustomButton isLoggedIn={true} onClick={handleClick}><BiSolidChat/>CHAT</CustomButton>
+            <CustomButton isLoggedIn={isLoggedIn} onClick={() => navigate('/Chat')}><BiSolidChat/>CHAT</CustomButton>
           </div>
       )
 };

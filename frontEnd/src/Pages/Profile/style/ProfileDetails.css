@@ -30,5 +30,77 @@
   .account-details p {
     color: #555;
   }
+
+  .friend-list {
+    list-style: none;
+    padding: 10px;
+    margin-left: 20px;
+  }
+  
+  .friend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .avatarFriends {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  
+  .friend-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .friend-name {
+    font-size: 25px;
+    font-weight: bold;
+    color: #C101A4;
+  }
+  
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 5px;
+  }
+  
+  .status-indicator.online {
+    background-color: green;
+  }
+  
+  .status-indicator.playing {
+    background-color: orange;
+  }
+  
+  .status-indicator.offline {
+    background-color: red;
+  }
+
+  .game-history-table-container {
+    overflow-y: auto;
+    max-height: 300px;
+  }
+  
+  .game-history-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .game-history-table tr {
+    color: hsl(320, 100%, 90%); /* Brighter text color for the first row */
+  }
+  
+ .winner {
+  color: #C101A4; /* Winner text color */
+  text-shadow: 0 0 10px #FF66CC; /* Glow effect for the winner text */
+ }
+
+ .game-history-table td {
+  color: #C101A4;
+ }
   
   

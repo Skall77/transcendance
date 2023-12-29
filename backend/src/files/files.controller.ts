@@ -83,7 +83,7 @@ export class FilesController {
         .resize(200, 200, { fit: 'cover' })
         .toBuffer();
       res.setHeader('Content-Type', file.mimetype);
-      res.setHeader('Content-Disposition', `attachment; filename=${file.name}`);
+      //res.setHeader('Content-Disposition', `attachment; filename=${file.name}`);
       res.send(imageBuffer);
     } catch (error) {
       console.log(error);
