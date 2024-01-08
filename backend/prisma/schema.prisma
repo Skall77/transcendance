@@ -113,7 +113,8 @@ model Game {
   roomName          String     @unique
   status            GameStatus @default(WAITING)
   players           User[]    @relation("player")
-  score             Int[]     
+  score             Int[]
+  winner			String		@default("none")
 
   @@unique([id])
 }

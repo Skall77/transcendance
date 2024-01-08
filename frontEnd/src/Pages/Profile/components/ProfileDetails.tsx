@@ -16,7 +16,8 @@ interface GameHistory {
   player: string,
   player1: string,
   player2: string,
-  score: [number, number];
+  score: [number, number],
+  winner: string,
 }
 
 
@@ -252,21 +253,12 @@ const ProfileDetails = () => {
         },
       });
       const data = await response.json();
-      setGameHistory(data);
+	  const sortedGameHistory = data.slice().sort((a: GameHistory, b: GameHistory) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      setGameHistory(sortedGameHistory);
     } catch (error) {
         console.log(error);
     }
   }
-
-  const getWinnerText = (game: any) => {
-    if (game.score[0] > game.score[1]) {
-      return game.player1;
-    } else if (game.score[0] < game.score[1]) {
-      return game.player2;
-    } else {
-      return 'Tie';
-    }
-  };
 
   return (
     <>
@@ -298,7 +290,9 @@ const ProfileDetails = () => {
     <h2>Friends</h2>
     <ul className="friend-list">
       {friends.map((friend) => (
-        <li key={friend.username} className="friend-item">
+        <li key={friend.username} className="friend-item" onClick={() => {
+			navigate(`/Profile/${friend.username}`);
+		}}>
           <img src={friend.avatar} alt={`Avatar of ${friend.username}`} className="avatarFriends" />
           <div className="friend-details">
             <span className="friend-name">{friend.username}</span>
@@ -321,16 +315,21 @@ const ProfileDetails = () => {
         </tr>
       </thead>
       <tbody>
-        {gameHistory.map((game, index) => (
-          <tr key={index}>
-            <td>{new Date(game.date).toLocaleDateString()}</td>
-            <td>{game.player1}</td>
-            <td>{game.score[0]}</td>
-            <td>{game.score[1]}</td>
-            <td>{game.player2}</td>
-            <td className="winner">{getWinnerText(game)}</td>
-          </tr>
-        ))}
+	  {gameHistory
+		.map((game, index) => {
+			const isPlayer1Winner = game.winner === game.player1;
+
+			return (
+			<tr key={index}>
+			<td>{new Date(game.date).toLocaleString()}</td>
+			<td>{isPlayer1Winner ? game.player1 : game.player2}</td>
+			<td>{Math.max(game.score[0], game.score[1])}</td>
+			<td>{Math.min(game.score[0], game.score[1])}</td>
+			<td>{isPlayer1Winner ? game.player2 : game.player1}</td>
+			<td className="winner">{game.winner}</td>
+			</tr>
+			);
+		})}
       </tbody>
     </table>
     </div>

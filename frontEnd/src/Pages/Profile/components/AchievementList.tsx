@@ -28,6 +28,7 @@ interface GameHistory {
   player1: string;
   player2: string;
   score: [number, number];
+  winner: string;
 }
 
 interface AchievementListProps {
@@ -81,9 +82,7 @@ const AchievementList: React.FC<AchievementListProps> = ({ friends, gameHistory,
 
       const hasWonAtLeastOneGame = gameHistory.some(
         (game) =>
-          (game.player1 === username && game.score[0] > game.score[1]) ||
-          (game.player2 === username && game.score[1] > game.score[0])
-      );
+          (game.winner === username));
 
       if (hasWonAtLeastOneGame) {
         newAchievements.push({
@@ -94,18 +93,14 @@ const AchievementList: React.FC<AchievementListProps> = ({ friends, gameHistory,
         });
       }
 
-      const hasWonThreeGamesInARow = gameHistory.some(
-        (game, index) =>
-          index >= 2 &&
-          ((game.player1 === username &&
-            game.score[0] > game.score[1] &&
-            gameHistory[index - 1].score[0] > gameHistory[index - 1].score[1] &&
-            gameHistory[index - 2].score[0] > gameHistory[index - 2].score[1]) ||
-            (game.player2 === username &&
-              game.score[1] > game.score[0] &&
-              gameHistory[index - 1].score[1] > gameHistory[index - 1].score[0] &&
-              gameHistory[index - 2].score[1] > gameHistory[index - 2].score[0]))
-      );
+      const hasWonThreeGamesInARow = gameHistory.some((game, index) => {
+		// Check if the current game and the next two games have the same winner as the specified username
+		return (
+		  gameHistory[index]?.winner === username &&
+		  gameHistory[index + 1]?.winner === username &&
+		  gameHistory[index + 2]?.winner === username
+		);
+	  });
 
       if (hasWonThreeGamesInARow) {
         newAchievements.push({
@@ -118,8 +113,7 @@ const AchievementList: React.FC<AchievementListProps> = ({ friends, gameHistory,
 
       const wonAtLeastFifteenGames = gameHistory.filter(
         (game) =>
-          (game.player1 === username && game.score[0] > game.score[1]) ||
-          (game.player2 === username && game.score[1] > game.score[0])
+          (game.winner === username)
       ).length >= 14;
 
       if (wonAtLeastFifteenGames) {

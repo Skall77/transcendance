@@ -366,6 +366,7 @@ export class UserService {
         playerName: true,
         score: true,
         createdAt: true,
+		winner: true,
       },
     });
 
@@ -373,8 +374,8 @@ export class UserService {
       const sortedPlayers = game.players.sort(
         (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
       );
-      const player1 = sortedPlayers[0].username;
-      const player2 = sortedPlayers[1].username;
+      const player1 = game.players[0].username;
+      const player2 = game.players[1].username;
       const player = game.playerName;
 
       return {
@@ -383,6 +384,7 @@ export class UserService {
         player,
         score: game.score,
         date: game.createdAt,
+		winner: game.winner,
       };
     });
   }

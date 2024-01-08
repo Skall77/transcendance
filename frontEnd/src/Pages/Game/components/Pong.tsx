@@ -69,7 +69,10 @@ const Pong: React.FC<{ socket: Socket, color: [string, string] }> = ({ socket, c
                 }
                 setPlayerNumber(data);
             });
-            socket.emit('JoinRoom', { roomName: idGame });
+			if (playerNumber !== 0) {
+				console.log({params: params.id, roomName: idGame, token: token, playerNumber: playerNumber, socket: socket});	
+            	socket.emit('JoinRoom', { roomName: idGame });
+			}
         }
 
         socket.on('GameStarted', () => {
@@ -79,6 +82,7 @@ const Pong: React.FC<{ socket: Socket, color: [string, string] }> = ({ socket, c
         socket.on('playerLeft', (value) => {
             setGameStatus(StatusGame.Finished);
             setScore(value.score);
+			console.log(value.score)
             if (playerNumber !== value.player)
                 setWon(true);
         });
@@ -100,7 +104,7 @@ const Pong: React.FC<{ socket: Socket, color: [string, string] }> = ({ socket, c
             socket.off('UpdateScore');
             socket.off('GameEnded');
         });
-    }, [params.id, idGame, socket, playerNumber, token, navigate]);
+    }, [params.id, idGame, playerNumber, socket, token]);
 
     return (
     <div className="PongStyle">

@@ -5,6 +5,7 @@ import {Route, Routes, useNavigate} from 'react-router-dom'
 import { getCookieValue } from './utils'
 import TwoFactor from './Pages/TwoFactor/TwoFactor'
 import PongGame from './Pages/Game/components/PongGame'
+import ErrorPage from './Pages/Error/ErrorPage'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -18,7 +19,7 @@ function App() {
       console.log('Checking token...');
       const cookieToken = getCookieValue('token');
       if (!cookieToken) {
-        console.log('SET FALSE');
+        console.log('FALSE');
         setIsLoggedIn(false);
         return;
       }
@@ -35,10 +36,10 @@ function App() {
       }
       const data = await response.json();
       if (data.error) {
-        console.log('SET FALSE');
+        console.log('FALSE');
         setIsLoggedIn(false);
       } else {
-        console.log('SET OK');
+        console.log('OK');
         setIsLoggedIn(true);
       }
       console.log('Token check complete');
@@ -121,6 +122,12 @@ function App() {
     }
   }
 
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/');
+    }
+  }, [isLoggedIn, navigate]);
+
   return (
       <div className='content-wrapper'>
         <Menu isLoggedIn={isLoggedIn} avatar={avatar} token={token} username={username}/>
@@ -133,6 +140,7 @@ function App() {
           <Route path='/Chat/:id' element={<Chat/>}/>
           <Route path='/Settings' element={<Settings avatar={avatar} setAvatar={setAvatar} username={username} setUsername={setUsername}/>}/>
           <Route path='/TwoFactor' element={<TwoFactor />}/>
+		  <Route path="*" element={<ErrorPage />} />
         </Routes>
         <p></p>
         <Footer/>

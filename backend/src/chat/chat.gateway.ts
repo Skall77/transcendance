@@ -424,7 +424,7 @@ export class ChatGateway implements OnGatewayConnection {
       const msg = await this.chatService.newMessage(
         {
           chanId: data.chanId,
-          message: `Link to play with me:\n ${process.env.FRONTEND_URL}/game/${room.name}`,
+          message: `Link to play with me:\n ${process.env.FRONTEND_URL}/PongGame/${room.name}`,
         },
         this.clients[client.id].id,
       );

@@ -114,7 +114,6 @@ export class AuthService {
         },
       });
 
-      console.log('converting image to File');
       const response = await fetch(user.image.versions.medium);
       const imageBlob = await response.blob();
       const formData = new FormData();
@@ -122,7 +121,6 @@ export class AuthService {
       const username = user.login;
       const uploadUrl = `${process.env.BACKEND_URL}/files/${username}/upload`;
       const uploadResponse = await axios.post(uploadUrl, formData);
-      console.log(uploadResponse.data);
       return newUser;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {

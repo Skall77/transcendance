@@ -8,6 +8,7 @@ import { SketchPicker } from 'react-color';
 import Swal from 'sweetalert2';
 import Pong from './Pong';
 import '../style/PongGame.css';
+import 'sweetalert2/dist/sweetalert2.css';
 
 const MySwal = withReactContent(Swal);
 
@@ -95,8 +96,13 @@ async function getRooms() {
     allowEnterKey: false,
     showConfirmButton: false,
     showCancelButton: true,
-    timer: 100000,
+    timer: 50000,
     timerProgressBar: true,
+	customClass: {
+		title: 'my-title-class',
+		popup: 'my-popup-class',
+		cancelButton: 'my-cancel-button-class',
+	  },
   }).then((result) => {
     if (result.dismiss === Swal.DismissReason.timer) {
       socket.emit('cancelMatchmaking');
@@ -195,8 +201,11 @@ const PongGame = () => {
           <br></br>
           <div className='btn' onClick={() => setShowBallColorPicker(!showBallColorPicker)}>Ball and Paddle Color</div>
           {showBallColorPicker && (
-            <div>
-              <SketchPicker className="color-picker-popup" color={color[0]} onChange={handleColorChange} />
+            <div className="color-picker-popup">
+				<span onClick={() => setShowBallColorPicker(false)} className="close-button">
+				&#10006;
+				</span>
+              <SketchPicker className="color-picker" color={color[0]} onChange={handleColorChange} />
             </div>
           )}
           <br></br>
@@ -205,10 +214,13 @@ const PongGame = () => {
           <br></br>
           <div className='btn' onClick={() => setShowBackgroundPicker(!showBackgroundPicker)}>Background Color</div>
           {showBackgroundPicker && (
-            <div>
-              <SketchPicker className="color-picker-popup" color={color[1]} onChange={handleBackgroundChange} />
-            </div>
-          )}
+			<div className="color-picker-popup">
+				<span onClick={() => setShowBackgroundPicker(false)} className="close-button">
+				&#10006;
+				</span>
+				<SketchPicker className="color-picker" color={color[1]} onChange={handleBackgroundChange} />
+			</div>
+		)}
         </div>
      : <Pong socket={socket} color={color}/>}
     </>

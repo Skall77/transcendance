@@ -66,8 +66,29 @@ td:nth-child(3) {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1000;
-  background: rgb(255, 255, 255);
+  background: rgba(196, 53, 53, 0);
   padding: 20px;
-  border: 1px solid #ccc;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
+.close-button {
+	position: absolute;
+	top: 5px; /* Adjust the top position as needed */
+	right: 5px; /* Adjust the right position as needed */
+	cursor: pointer;
+	font-size: 14px;
+	color: #C101A4; /* Set the color as needed */
+  }
+
+  .my-title-class {
+	color: #C101A4;
+  }
+  
+  .my-popup-class {
+	background-color: #1a1a1a;
+  }
+  
+  .my-cancel-button-class {
+	background-color: #C101A4 !important;
+	color: #1a1a1a !important;
+  }

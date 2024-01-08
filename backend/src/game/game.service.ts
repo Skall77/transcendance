@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket, Server } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
+import { cp } from 'fs';
 
 type Ball = {
   x: number;
@@ -91,7 +92,7 @@ export class GameService {
         if (room.game.isPlaying) {
           this.scheduleRegistry.deleteInterval(room.name);
           room.game.player1Score = 0;
-          room.game.player2Score = 5;
+          room.game.player2Score = 0;
           room.game.isPlaying = false;
           room.game.ball.speed = 0;
         }
@@ -106,7 +107,7 @@ export class GameService {
         room.player2 = '';
         if (room.game.isPlaying) {
           this.scheduleRegistry.deleteInterval(room.name);
-          room.game.player1Score = 5;
+          room.game.player1Score = 0;
           room.game.player2Score = 0;
           room.game.isPlaying = false;
           room.game.ball.speed = 0;
@@ -146,6 +147,7 @@ export class GameService {
         score: [0, 0],
         playerName: Player1,
         roomName: uniqueId,
+		winner: "none",
       },
     });
 
@@ -291,6 +293,7 @@ export class GameService {
       this.rooms[roomName].game.player1Score,
       this.rooms[roomName].game.player2Score,
     ];
+	const winner = this.rooms[roomName].game.player1Score > this.rooms[roomName].game.player2Score ? this.rooms[roomName].player1 : this.rooms[roomName].player2;
     this.prisma.game
       .update({
         where: {
@@ -298,6 +301,7 @@ export class GameService {
         },
         data: {
           score: scoreArray,
+		  winner: winner
         },
       })
       .then(() => {
@@ -353,6 +357,7 @@ export class GameService {
     if (room !== undefined) {
       if (room.player1 === user) return 1;
       else if (room.player2 === user) return 2;
+	  else return 3;
     }
     return 0;
   }
@@ -368,6 +373,7 @@ export class GameService {
         score: [0, 0],
         playerName: Player1,
         roomName: uniqueId,
+		winner: "none",
       },
     });
 
